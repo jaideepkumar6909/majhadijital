@@ -80,39 +80,54 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Handle Contact Form Submission (Web3Forms Version)
-const form = document.getElementById('form');
-const submitBtn = form.querySelector('button[type="submit"]');
+    // Handle Contact Form Submission (Web3Forms Version)
+    const form = document.getElementById('form');
 
-form.addEventListener('submit', async (e) => {
-    e.preventDefault();
+    if (form) {
+        console.log('Contact form detected, enabling Web3Forms submit…');
 
-    const formData = new FormData(form);
-    formData.append("access_key", "0f65ad1a-8f94-44b7-b8af-a09baebc8b22");
+        const submitBtn = form.querySelector('button[type="submit"]');
 
-    const originalText = submitBtn.textContent;
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
 
-    submitBtn.textContent = "Sending...";
-    submitBtn.disabled = true;
+            const formData = new FormData(form);
+            formData.append("access_key", "0f65ad1a-8f94-44b7-b8af-a09baebc8b22");
 
-    try {
-        const response = await fetch("https://api.web3forms.com/submit", {
-            method: "POST",
-            body: formData
+            const originalText = submitBtn ? submitBtn.textContent : '';
+
+            if (submitBtn) {
+                submitBtn.textContent = "Sending...";
+                submitBtn.disabled = true;
+            }
+
+            try {
+                const response = await fetch("https://api.web3forms.com/submit", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await response.json();
+                console.log('Web3Forms response:', response.status, data);
+
+                if (response.ok) {
+                    alert("Success! Your message has been sent.");
+                    form.reset();
+                } else {
+                    alert("Error: " + (data.message || "Unknown error from Web3Forms"));
+                }
+
+            } catch (error) {
+                console.error('Web3Forms network error:', error);
+                alert("Something went wrong. Please try again.");
+            } finally {
+                if (submitBtn) {
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
+                }
+            }
         });
-
-        const data = await response.json();
-
-        if (response.ok) {
-            alert("Success! Your message has been sent.");
-            form.reset();
-        } else {
-            alert("Error: " + data.message);
-        }
-
-    } catch (error) {
-        alert("Something went wrong. Please try again.");
-    } finally {
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
+    } else {
+        console.log('No #form element found on this page, skipping Web3Forms setup.');
     }
 });
