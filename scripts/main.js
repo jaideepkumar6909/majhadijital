@@ -79,52 +79,52 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Handle Contact Form Submission
-    const contactForm = document.querySelector('.contact-form');
-    if (contactForm) {
-        contactForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+    // Handle Contact Form Submission (Web3Forms Version)
+const form = document.getElementById('form');
 
-            const submitBtn = contactForm.querySelector('button[type="submit"]');
-            const originalBtnText = submitBtn.innerText;
-            submitBtn.innerText = 'Sending...';
-            submitBtn.disabled = true;
+if (form) {
+    const submitBtn = form.querySelector('button[type="submit"]');
 
-            const formData = new FormData(contactForm);
-            // Add your Web3Forms Access Key here
-            formData.append("access_key", "YOUR_ACCESS_KEY_HERE");
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-            try {
-                const response = await fetch("https://api.web3forms.com/submit", {
-                    method: "POST",
-                    body: formData
-                });
+        const formData = new FormData(form);
+        formData.append("access_key", "0f65ad1a-8f94-44b7-b8af-a09baebc8b22");
 
-                const result = await response.json();
+        const originalText = submitBtn.textContent;
 
-                if (result.success) {
-                    // Show success message
-                    contactForm.innerHTML = `
-                        <div class="success-message" style="text-align: center; padding: 2rem;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 1rem;">
-                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                            </svg>
-                            <h3>Message Sent!</h3>
-                            <p>Thank you for reaching out. We'll get back to you shortly.</p>
-                        </div>
-                    `;
-                } else {
-                    alert("Something went wrong. Please try again later.");
-                    submitBtn.innerText = originalBtnText;
-                    submitBtn.disabled = false;
-                }
-            } catch (error) {
-                console.error("Error:", error);
-                alert("Something went wrong. Please try again later.");
-                submitBtn.innerText = originalBtnText;
-                submitBtn.disabled = false;
+        submitBtn.textContent = "Sending...";
+        submitBtn.disabled = true;
+
+        try {
+            const response = await fetch("https://api.web3forms.com/submit", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Replace form with a clean confirmation UI
+                form.innerHTML = `
+                    <div class="success-message" style="text-align:center; padding:2rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        <h3>Message Sent!</h3>
+                        <p>Thank you for reaching out. We'll get back to you shortly.</p>
+                    </div>
+                `;
+            } else {
+                alert("Error: " + data.message);
             }
-        });
-    }
-});
+
+        } catch (error) {
+            alert("Something went wrong. Please try again.");
+        } finally {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+    });
+}
