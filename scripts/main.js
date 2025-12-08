@@ -1,18 +1,17 @@
-// Main JavaScript file
+/// Main JavaScript file
 console.log('Majha Dijital loaded');
 
 document.addEventListener('DOMContentLoaded', () => {
+
+    // -------------------------
     // Mobile Menu Toggle
+    // -------------------------
     const menuToggle = document.querySelector('.menu-toggle');
     const navLinks = document.querySelector('.nav-links');
 
     if (menuToggle && navLinks) {
         menuToggle.addEventListener('click', () => {
             navLinks.classList.toggle('active');
-
-            // Animate hamburger
-            const bars = menuToggle.querySelectorAll('.bar');
-            // Simple animation logic can be added here if needed
         });
 
         // Close menu when clicking a link
@@ -23,9 +22,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // -------------------------
     // Auto-select subject from URL parameter
+    // -------------------------
     const urlParams = new URLSearchParams(window.location.search);
     const subject = urlParams.get('subject');
+
     if (subject) {
         const subjectSelect = document.getElementById('subject');
         if (subjectSelect) {
@@ -33,8 +35,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Handle smooth scrolling and selection from same-page links
-    // Handle smooth scrolling and selection from same-page links
+    // -------------------------
+    // Smooth scroll + subject setter
+    // -------------------------
     const serviceLinks = document.querySelectorAll('a[data-subject]');
     console.log('Found service links:', serviceLinks.length);
 
@@ -42,49 +45,34 @@ document.addEventListener('DOMContentLoaded', () => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             const subjectValue = link.getAttribute('data-subject');
-            console.log('Service clicked:', subjectValue);
 
             const subjectSelect = document.getElementById('subject');
             const contactSection = document.getElementById('contact');
 
-            // 1. Select the subject
+            // Select subject
             if (subjectSelect) {
-                // Check if value exists in options
-                const optionExists = Array.from(subjectSelect.options).some(opt => opt.value === subjectValue);
-                if (optionExists) {
-                    subjectSelect.value = subjectValue;
-                    console.log('Subject set to:', subjectValue);
+                const exists = Array.from(subjectSelect.options)
+                    .some(opt => opt.value === subjectValue);
 
-                    // Visual feedback
-                    subjectSelect.style.transition = 'border-color 0.3s ease';
-                    const originalBorder = subjectSelect.style.borderColor;
-                    subjectSelect.style.borderColor = '#2563eb'; // Highlight color
-                    setTimeout(() => {
-                        subjectSelect.style.borderColor = originalBorder;
-                    }, 1500);
-                } else {
-                    console.warn(`Option value '${subjectValue}' not found in dropdown`);
+                if (exists) {
+                    subjectSelect.value = subjectValue;
                 }
-            } else {
-                console.error('Subject select element not found');
             }
 
-            // 2. Scroll to contact section
+            // Scroll to contact form
             if (contactSection) {
                 contactSection.scrollIntoView({ behavior: 'smooth' });
-            } else {
-                console.error('Contact section not found');
-                window.location.hash = 'contact';
             }
         });
     });
 
-    // Handle Contact Form Submission (Web3Forms Version)
-    // Handle Contact Form Submission (Web3Forms Version)
+    // -------------------------
+    // Contact Form Submission (Web3Forms)
+    // -------------------------
     const form = document.getElementById('form');
 
     if (form) {
-        console.log('Contact form detected, enabling Web3Forms submit…');
+        console.log("Contact form detected, enabling Web3Forms...");
 
         const submitBtn = form.querySelector('button[type="submit"]');
 
@@ -92,14 +80,12 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
 
             const formData = new FormData(form);
-            formData.append("access_key", "0f65ad1a-8f94-44b7-b8af-a09baebc8b22");
+            formData.append("access_key", "0f65ad1a-8f94-44b7-b8af-a09baebc8b22"); // your real key
 
-            const originalText = submitBtn ? submitBtn.textContent : '';
+            const originalText = submitBtn.textContent;
 
-            if (submitBtn) {
-                submitBtn.textContent = "Sending...";
-                submitBtn.disabled = true;
-            }
+            submitBtn.textContent = "Sending...";
+            submitBtn.disabled = true;
 
             try {
                 const response = await fetch("https://api.web3forms.com/submit", {
@@ -108,26 +94,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 const data = await response.json();
-                console.log('Web3Forms response:', response.status, data);
+                console.log("Web3Forms Response:", data);
 
-                if (response.ok) {
+                if (response.ok && data.success) {
                     alert("Success! Your message has been sent.");
                     form.reset();
                 } else {
-                    alert("Error: " + (data.message || "Unknown error from Web3Forms"));
+                    alert("Error: " + (data.message || "Unknown error"));
                 }
 
             } catch (error) {
-                console.error('Web3Forms network error:', error);
-                alert("Something went wrong. Please try again.");
+                console.error("Web3Forms Error:", error);
+                alert("Network error. Please try again.");
             } finally {
-                if (submitBtn) {
-                    submitBtn.textContent = originalText;
-                    submitBtn.disabled = false;
-                }
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
             }
         });
+
     } else {
-        console.log('No #form element found on this page, skipping Web3Forms setup.');
+        console.log("No contact form found on this page. Skipping Web3Forms setup.");
     }
+
 });
